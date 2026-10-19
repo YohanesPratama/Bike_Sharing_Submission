@@ -20,7 +20,7 @@ def create_time_category_df(df):
         elif 9 <= hour <= 16:    
             return 'Working Hours'
         else:
-            return 'Off-Peak (Night/Early Morning)'
+            return 'Off-Peak'
             
     df['time_category'] = df['hr'].apply(get_time_category)
     cluster_time_result = df.groupby('time_category')['cnt'].mean().reset_index()
