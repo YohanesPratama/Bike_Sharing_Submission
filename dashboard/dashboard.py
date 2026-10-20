@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
@@ -26,7 +27,10 @@ def create_time_category_df(df):
     cluster_time_result = df.groupby('time_category')['cnt'].mean().reset_index()
     return cluster_time_result
 
-main_df = pd.read_csv("hour.csv")
+script_dir = os.path.dirname(__file__)
+file_path = os.path.join(script_dir, "hour.csv")
+
+main_df = pd.read_csv(file_path)
 main_df['dteday'] = pd.to_datetime(main_df['dteday'])
 
 season_mapping = {1: 'Spring', 2: 'Summer', 3: 'Fall', 4: 'Winter'}
@@ -56,20 +60,25 @@ with st.sidebar:
     st.markdown("---")
     st.subheader("Filter Data")
     
-    start_date, end_date = st.date_input(
+    date_range = st.date_input(
         label='Rentang Waktu',
         min_value=min_date,
         max_value=max_date,
         value=[min_date, max_date]
     )
     
+    if len(date_range) == 2:
+        start_date, end_date = date_range
+    else:
+        start_date, end_date = min_date, max_date
+
     st.markdown("---")
     st.subheader("Tentang Dashboard")
     st.write("Dashboard ini menyajikan analisis data penyewaan sepeda (*Bike Sharing*) periode 2011-2012 untuk membandingkan jam sibuk penyewaan, tren musiman antar tipe pengguna, serta pengelompokan waktu operasional.")
     
     st.markdown("---")
     st.subheader("Informasi Dataset")
-    st.write(f"- **Total Data Terfilter:** {len(main_df):,} baris")
+    st.write(f"- **Total Data:** {len(main_df):,} baris")
     st.write("- **Rentang Waktu:** 2011 - 2012")
     
     st.markdown("---")
