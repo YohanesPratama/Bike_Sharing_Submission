@@ -117,8 +117,7 @@ ax1.set_xticks(range(0, 24))
 ax1.legend(title="Tipe Hari")
 st.pyplot(fig1)
 
-st.write("**Hari Kerja (Working Day):** Terdapat lonjakan penyewaan yang signifikan pada jam sibuk berangkat kerja (07:00-08:00) dan pulang kerja (17:00-18:00).")
-st.write("**Hari Libur (Weekend/Holiday):** Pola penyewaan cenderung terdistribusi merata di siang hari dari jam 10:00 hingga 16:00.")
+st.write("Pola penyewaan sepeda menunjukkan perbedaan yang cukup jelas antara hari kerja dan hari libur. Pada hari kerja (Working Day), lonjakan penyewaan terjadi sangat signifikan di dua jam sibuk utama, yaitu saat berangkat kerja pukul 07:00–08:00 dan pulang kerja pukul 17:00–18:00. Sementara itu, pada hari libur (Weekend/Holiday), tren penyewaan cenderung terdistribusi lebih merata sepanjang siang hingga sore hari, tepatnya sekitar pukul 10:00 hingga 16:00.")
 
 st.markdown("---")
 
@@ -158,8 +157,7 @@ for p in ax2.patches:
 
 st.pyplot(fig2)
 
-st.write("**Dominasi Pengguna Terdaftar:** Pengguna terdaftar (*registered*) mendominasi penyewaan di seluruh musim.")
-st.write("**Musim Tertinggi:** Rata-rata penyewaan sepeda memuncak pada musim gugur (*Fall*) untuk kedua tipe pengguna.")
+st.write("Pengguna terdaftar (registered) secara konsisten mendominasi volume penyewaan sepeda di seluruh musim jika dibandingkan dengan pengguna kasual. Meski terdapat perbedaan jumlah yang signifikan, tren pergerakan dari kedua kelompok ini menunjukkan pola yang serupa, di mana rata-rata penyewaan sepeda mencapai puncaknya pada musim gugur (Fall).")
 
 st.markdown("---")
 
@@ -186,6 +184,6 @@ for index, row in enumerate(cluster_time_result_sorted['cnt']):
 
 st.pyplot(fig3)
 
-st.write("**Analisis Waktu Operasional:** Pengelompokan waktu menunjukkan bahwa kategori *Rush Hour* mencatatkan rata-rata penyewaan tertinggi.")
+st.write("Hasil pengelompokan waktu operasional menunjukkan bahwa kategori Rush Hour mencatatkan rata-rata penyewaan tertinggi dibandingkan rentang waktu lainnya. Hal ini memperlihatkan bahwa penggunaan sepeda paling dominan terjadi pada jam-jam sibuk pergerakan komuter.")
 
 st.caption('Copyright © Data Analytics Project 2026')
