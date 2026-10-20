@@ -15,12 +15,12 @@ def create_seasonal_users_df(df):
 
 def create_time_category_df(df):
     def get_time_category(hour):
-        if hour in [7, 8, 17, 18]: 
+        if hour in [7, 8, 17, 18]:
             return 'Rush Hour'
-        elif 9 <= hour <= 16:    
+        elif 9 <= hour <= 16:
             return 'Working Hours'
         else:
-            return 'Off-Peak'
+            return 'Off-Peak (Night/Early Morning)'
             
     df['time_category'] = df['hr'].apply(get_time_category)
     cluster_time_result = df.groupby('time_category')['cnt'].mean().reset_index()
@@ -47,29 +47,45 @@ main_df['weather_label'] = main_df['weathersit'].map(weather_mapping)
 workingday_mapping = {0: 'Weekend/Holiday', 1: 'Working Day'}
 main_df['day_type'] = main_df['workingday'].map(workingday_mapping)
 
-hourly_day_type_df = create_hourly_day_type_df(main_df)
-seasonal_users_df = create_seasonal_users_df(main_df)
-cluster_time_result = create_time_category_df(main_df)
+min_date = main_df['dteday'].min()
+max_date = main_df['dteday'].max()
 
 with st.sidebar:
     st.title("Bike Sharing Analytics")
     
     st.markdown("---")
+    st.subheader("Filter Data")
+    
+    start_date, end_date = st.date_input(
+        label='Rentang Waktu',
+        min_value=min_date,
+        max_value=max_date,
+        value=[min_date, max_date]
+    )
+    
+    st.markdown("---")
     st.subheader("Tentang Dashboard")
-    st.write("Dashboard ini menyajikan hasil analisis data penyewaan sepeda (Bike Sharing). Fokus utama analisis ini adalah melihat **perbandingan jam sibuk penyewaan** antara hari kerja dan hari libur, serta melihat **tren penyewaan musiman** antara pengguna kasual dan pengguna terdaftar.")
+    st.write("Dashboard ini menyajikan analisis data penyewaan sepeda (*Bike Sharing*) periode 2011-2012 untuk membandingkan jam sibuk penyewaan, tren musiman antar tipe pengguna, serta pengelompokan waktu operasional.")
     
     st.markdown("---")
     st.subheader("Informasi Dataset")
-    st.write(f"- **Total Data:** {len(main_df):,} baris")
-    st.write("**Rentang Waktu:** 2011 - 2012")
+    st.write(f"- **Total Data Terfilter:** {len(main_df):,} baris")
+    st.write("- **Rentang Waktu:** 2011 - 2012")
     
     st.markdown("---")
     st.subheader("Author")
     st.write("**Nama:** Yohanes Pratama")
     st.write("**Submission:** Belajar Fundamental Analisis Data")
 
+filtered_df = main_df[(main_df['dteday'] >= pd.to_datetime(start_date)) & 
+                      (main_df['dteday'] <= pd.to_datetime(end_date))]
+
+hourly_day_type_df = create_hourly_day_type_df(filtered_df)
+seasonal_users_df = create_seasonal_users_df(filtered_df)
+cluster_time_result = create_time_category_df(filtered_df)
+
 st.header('Bike Sharing Dashboard Overview')
-st.write("Selamat datang di Bike Sharing Dashboard. Visualisasi di bawah ini akan menjawab dua pertanyaan bisnis utama terkait pola penggunaan sepeda berdasarkan jam (hari kerja vs hari libur) dan perbandingan tipe pengguna berdasarkan musim.")
+st.write("Selamat datang di Bike Sharing Dashboard. Gunakan filter rentang waktu di sidebar untuk mengeksplorasi data secara interaktif.")
 
 st.markdown("---")
 
@@ -92,8 +108,8 @@ ax1.set_xticks(range(0, 24))
 ax1.legend(title="Tipe Hari")
 st.pyplot(fig1)
 
-st.write("**Hari Kerja (Working Day):** Terdapat lonjakan penyewaan yang sangat signifikan pada jam sibuk berangkat kerja (07:00-08:00) dan jam pulang kerja (17:00-18:00).")
-st.write("**Hari Libur (Weekend/Holiday):** Pola penyewaan cenderung terdistribusi merata di siang hari dari jam 10:00 hingga 16:00 tanpa ada lonjakan drastis.")
+st.write("**Hari Kerja (Working Day):** Terdapat lonjakan penyewaan yang signifikan pada jam sibuk berangkat kerja (07:00-08:00) dan pulang kerja (17:00-18:00).")
+st.write("**Hari Libur (Weekend/Holiday):** Pola penyewaan cenderung terdistribusi merata di siang hari dari jam 10:00 hingga 16:00.")
 
 st.markdown("---")
 
@@ -121,19 +137,20 @@ ax2.set_xlabel("Musim", fontsize=12)
 ax2.legend(title="Tipe Pengguna", labels=['Casual', 'Registered'])
 
 for p in ax2.patches:
-    ax2.annotate(
-        f"{p.get_height():.0f}",
-        (p.get_x() + p.get_width() / 2., p.get_height()),
-        ha='center', va='bottom',
-        fontsize=11,
-        xytext=(0, 5),
-        textcoords='offset points'
-    )
+    if p.get_height() > 0:
+        ax2.annotate(
+            f"{p.get_height():.0f}",
+            (p.get_x() + p.get_width() / 2., p.get_height()),
+            ha='center', va='bottom',
+            fontsize=11,
+            xytext=(0, 5),
+            textcoords='offset points'
+        )
 
 st.pyplot(fig2)
 
-st.write("**Dominasi Pengguna Terdaftar:** Pengguna terdaftar (registered) mendominasi jumlah penyewaan di seluruh musim dibandingkan pengguna kasual.")
-st.write("**Musim Tertinggi:** Rata-rata penyewaan sepeda memuncak pada musim gugur (Fall) untuk kedua tipe pengguna, dengan level terendah pada musim semi (Spring).")
+st.write("**Dominasi Pengguna Terdaftar:** Pengguna terdaftar (*registered*) mendominasi penyewaan di seluruh musim.")
+st.write("**Musim Tertinggi:** Rata-rata penyewaan sepeda memuncak pada musim gugur (*Fall*) untuk kedua tipe pengguna.")
 
 st.markdown("---")
 
@@ -160,6 +177,6 @@ for index, row in enumerate(cluster_time_result_sorted['cnt']):
 
 st.pyplot(fig3)
 
-st.write("**Analisis Waktu Operasional:** Pengelompokan waktu menunjukkan variasi tingkat kepadatan penyewaan sepeda yang membantu melihat kapan aktivitas pengguna berada pada puncaknya.")
+st.write("**Analisis Waktu Operasional:** Pengelompokan waktu menunjukkan bahwa kategori *Rush Hour* mencatatkan rata-rata penyewaan tertinggi.")
 
 st.caption('Copyright © Data Analytics Project 2026')
